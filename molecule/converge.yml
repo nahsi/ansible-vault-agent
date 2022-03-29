@@ -1,0 +1,32 @@
+- name: Install vault-vagent
+  become: true
+  hosts: all
+  vars:
+    vault_agent_version: "1.10.0"
+
+    vault_agent_config:
+      vault:
+        address: "http://127.0.0.1:8200"
+
+      auto_auth:
+        method:
+          - type: "approle"
+            config:
+              role_id_file_path: "/opt/role.id"
+              secret_id_file_path: "/opt/secret.id"
+              remove_secret_id_file_after_reading: false
+
+    vault_agent_configs:
+      molecule:
+        template:
+          - source: "{{ vault_agent_dirs.templates.path }}/molecule.tmpl"
+            destination: "/opt/foo"
+            perms: 0640
+
+    vault_agent_templates:
+      molecule: |
+        {{- with secret "secret/data/molecule/secret" -}}
+        {{ .Data.foo }}{{ end -}}
+
+  roles:
+    - ansible-vault-agent

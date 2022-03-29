@@ -1,0 +1,32 @@
+- name: register present configs
+  tags: config
+  find:
+    paths: "{{ vault_agent_dirs.configs.path }}"
+    recurse: true
+  register: _configs_present
+
+- name: copy configs
+  tags: config
+  copy:
+    content: "{{ config.value | to_nice_json }}"
+    dest: "{{ vault_agent_dirs.configs.path }}/{{ config.key }}.json"
+    owner: "{{ vault_agent_user }}"
+    group: "{{ vault_agent_group }}"
+    mode: 0640
+  notify: restart vault-agent
+  loop: "{{ vault_agent_configs | dict2items }}"
+  loop_control:
+    loop_var: "config"
+    label: "{{ config.key }}"
+  register: _configs_copied
+
+- name: delete configs
+  tags: config
+  vars:
+    _present: "{{ _configs_present | json_query('files[*].path') | default([]) }}"
+    _copied: "{{ _configs_copied | json_query('results[*].dest') | default([]) }}"
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ _present | difference(_copied) }}"
+  notify: restart vault-agent

@@ -1,0 +1,73 @@
+skip_handlers: false
+
+vault_agent_download_url: "https://releases.hashicorp.com"
+
+vault_agent_configs: {}
+vault_agent_templates: {}
+
+vault_agent_user: "root"
+vault_agent_group: "root"
+
+vault_agent_dir: "/opt/vault-agent"
+vault_agent_dirs:
+  main:
+    path: "{{ vault_agent_dir }}"
+  configs:
+    path: "{{ vault_agent_dir }}/config.d"
+  templates:
+    path: "{{ vault_agent_dir }}/template.d"
+  certs:
+    path: "{{ vault_agent_dir }}/certs"
+  logs:
+    path: "/var/log/vault-agent"
+
+vault_agent_service: |
+  #!/sbin/openrc-run
+
+  description="HashiCorp vault-agent"
+
+  group="${RC_SVCNAME}"
+  user="${RC_SVCNAME}"
+
+  supervisor="supervise-daemon"
+  pidfile="/run/${RC_SVCNAME}.pid"
+  command="/usr/bin/${RC_SVCNAME}"
+  command_args="agent -config={{ vault_agent_dir }}/vault-agent.json -config={{ vault_agent_dirs.configs.path }}"
+  command_background="true"
+  extra_started_commands="reload"
+
+  output_log="{{ vault_agent_dirs.logs.path }}/vault-agent.log"
+  error_log="{{ vault_agent_dirs.logs.path }}/vault-agent.log"
+
+  depend() {
+    need net
+  }
+
+  reload() {
+    ebegin "Reloading vault-agent"
+    ${supervisor} ${RC_SVCNAME} --signal HUP --pidfile "${PIDFILE}"
+    eend $?
+  }
+
+vault_agent_unit: |
+  [Unit]
+  Description="HashiCorp vault-agent"
+  Documentation=https://www.vaultproject.io/docs/agent
+  Requires=network-online.target
+  After=network-online.target
+  ConditionFileNotEmpty={{ vault_agent_dir }}/vault-agent.json
+  StartLimitIntervalSec=60
+  StartLimitBurst=3
+
+  [Service]
+  User=root
+  Group=root
+  ExecStart=/usr//bin/vault agent -config={{ vault_agent_dir }}/vault-agent.json -config={{ vault_agent_dirs.configs.path }}
+  ExecReload=/bin/kill --signal HUP $MAINPID
+  KillMode=process
+  KillSignal=SIGINT
+  Restart=on-failure
+  RestartSec=5
+
+  [Install]
+  WantedBy=multi-user.target
