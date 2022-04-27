@@ -5,7 +5,7 @@ driver:
 
 platforms:
   - &node
-    name: alpine
+    name: gentoo
     box: generic/gentoo
     memory: 512
     cpu: 1

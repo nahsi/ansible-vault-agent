@@ -21,6 +21,12 @@
         state: present
       when: ansible_distribution == "Ubuntu"
 
+    - name: Install gentoolkit
+      command: "emerge app-portage/gentoolkit"
+      args:
+        creates: "/usr/bin/equery"
+      when: ansible_distribution == "Gentoo"
+
     - name: Install required packages
       portage:
         name:
