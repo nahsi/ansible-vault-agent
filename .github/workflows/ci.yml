@@ -1,0 +1,72 @@
+name: molecule
+
+on:
+  pull_request:
+    branches:
+      - "master"
+    paths-ignore:
+      - ".github/**"
+      - "**.md"
+
+concurrency:
+  group: "ci-${{ github.head_ref }}"
+  cancel-in-progress: true
+
+env:
+  PY_COLORS: 1
+  ANSIBLE_FORCE_COLOR: 1
+
+jobs:
+  lint:
+    name: "Lint with reviewdog"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup Python"
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: "Run yamllint"
+        uses: reviewdog/action-yamllint@v1
+        with:
+          fail_on_error: true
+
+      - name: "Run ansible-lint"
+        uses: reviewdog/action-ansiblelint@v1
+        with:
+          fail_on_error: true
+
+  molecule:
+    name: "molecule tests"
+    runs-on: macos-10.15
+
+    needs: lint
+
+    strategy:
+      matrix:
+        scenario:
+          - ubuntu
+          - gentoo
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup Python"
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - uses: syphar/restore-virtualenv@v1
+        id: cache
+
+      - uses: syphar/restore-pip-download-cache@v1
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: "Install dependencies"
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip3 install --upgrade -r requirements.txt
+
+      - name: "Run ${{ matrix.scenario }} scenario"
+        run: molecule test --scenario-name "${{ matrix.scenario }}"
