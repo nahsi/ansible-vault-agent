@@ -1,0 +1,11 @@
+- name: Preflight
+  tags: always
+  include_tasks: 00-preflight.yml
+
+- name: Install and configure Vault
+  tags: config
+  include_tasks: 01-install.yml
+
+- name: Manage templates
+  tags: config
+  include_tasks: 02-templates.yml

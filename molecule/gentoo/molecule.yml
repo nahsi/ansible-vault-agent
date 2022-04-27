@@ -1,0 +1,30 @@
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+
+platforms:
+  - &node
+    name: gentoo
+    box: generic/gentoo
+    memory: 512
+    cpu: 1
+    provider_raw_config_args:
+      - "customize ['modifyvm', :id, '--uartmode1', 'disconnected']"
+
+provisioner:
+  name: ansible
+  playbooks:
+    prepare: ../prepare.yml
+    converge: ../converge.yml
+
+verifier:
+  name: testinfra
+  directory: ../tests
+  env:
+    # get rid of the DeprecationWarning messages of third-party libs,
+    # see https://docs.pytest.org/en/latest/warnings.html#deprecationwarning-and-pendingdeprecationwarning
+    PYTHONWARNINGS: "ignore:.*U.*mode is deprecated:DeprecationWarning"
+  options:
+    # show which tests where executed in test output
+    v: 1

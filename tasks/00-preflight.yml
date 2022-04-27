@@ -1,0 +1,75 @@
+- name: check "vault_agent_download_url" variable
+  tags: always
+  assert:
+    that:
+      - vault_agent_download_url is defined
+      - vault_agent_download_url is string
+      - vault_agent_download_url | length
+    quiet: true
+
+- name: check if "{{ vault_agent_download_url }}" is online
+  become: false
+  run_once: true
+  delegate_to: localhost
+  check_mode: false
+  uri:
+    url: "{{ vault_agent_download_url }}"
+    status_code: 200
+  register: _result
+  retries: "3"
+  delay: "5"
+  until: _result.status == 200
+
+- name: check "vault_agent_version" variable
+  tags: always
+  assert:
+    that:
+      - vault_agent_version is defined
+      - vault_agent_version is string
+      - vault_agent_version | length
+    quiet: true
+
+- name: check "vault_agent_dirs" variable
+  tags: always
+  assert:
+    that:
+      - vault_agent_dirs is defined
+      - vault_agent_dirs is mapping
+      - vault_agent_dirs | length
+    quiet: true
+
+- name: check "vault_agent_config" variable
+  tags: always
+  assert:
+    that:
+      - vault_agent_config is defined
+      - vault_agent_config is mapping
+      - vault_agent_config | length
+    quiet: true
+
+- name: check "vault_agent_templates" variable
+  tags: always
+  assert:
+    that:
+      - vault_agent_templates is defined
+      - vault_agent_templates is mapping
+    quiet: true
+
+- name: check "vault_agent_service" variable
+  tags: always
+  assert:
+    that:
+      - vault_agent_service is defined
+      - vault_agent_service is string
+      - vault_agent_service | length
+    quiet: true
+  when: ansible_service_mgr == "openrc"
+
+- name: check "vault_agent_unit" variable
+  tags: always
+  assert:
+    that:
+      - vault_agent_unit is defined
+      - vault_agent_unit is string
+      - vault_agent_unit | length
+    quiet: true

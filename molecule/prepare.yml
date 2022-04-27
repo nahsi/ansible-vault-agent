@@ -1,0 +1,143 @@
+- name: Run Vault
+  become: true
+  hosts: all
+  tasks:
+    - name: Add docker GPG key to ubuntu
+      apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Add docker repo to ubuntu
+      apt_repository:
+        repo: >
+          deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install required packages
+      apt:
+        name:
+          - "python3-pip"
+          - "python3-setuptools"
+          - "docker-ce"
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install gentoolkit
+      command: "emerge app-portage/gentoolkit"
+      args:
+        creates: "/usr/bin/equery"
+      when: ansible_distribution == "Gentoo"
+
+    - name: Install required packages
+      portage:
+        name:
+          - "app-containers/docker"
+        state: present
+      when: ansible_distribution == "Gentoo"
+
+    - name: Start docker
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add "vagrant" user to docker group
+      user:
+        name: "vagrant"
+        append: true
+        groups: docker
+
+    - name: Install python packages
+      pip:
+        name:
+          - "hvac"
+          - "docker"
+
+    - name: Run Vault in developement mode
+      docker_container:
+        name: "vault"
+        image: "vault:latest"
+        env:
+          VAULT_DEV_ROOT_TOKEN_ID: "molecule"
+        network_mode: host
+        restart_policy: unless-stopped
+        container_default_behavior: compatibility
+        capabilities:
+          - IPC_LOCK
+
+    - name: Wait for Vault to become ready
+      uri:
+        url: "http://localhost:8200"
+        status_code: 200
+      register: _result
+      retries: "3"
+      delay: "5"
+      until: _result.status == 200
+
+    - name: Write dummy secret
+      hashivault_write:
+        token: "molecule"
+        version: 2
+        secret: "molecule/secret"
+        data:
+          foo: bar
+
+    - name: Create policy
+      hashivault_policy:
+        token: "molecule"
+        name: vault-agent
+        rules: |
+          path "secret/data/molecule/secret"
+          {
+            capabilities = ["read"]
+          }
+    - name: Enable approle auth
+      hashivault_auth_method:
+        token: "molecule"
+        method_type: approle
+
+    - name: Create app role for vault-agent
+      hashivault_approle_role:
+        token: "molecule"
+        name: vault-agent
+        token_policies:
+          - "vault-agent"
+
+    - name: Get app role id
+      hashivault_approle_role_id:
+        token: "molecule"
+        name: vault-agent
+      register: app_role
+
+    - name: Create a file with app role id
+      copy:
+        content: "{{ app_role.id }}"
+        dest: "/tmp/role.id"
+
+    - name: Get app role secret id
+      hashivault_approle_role_secret:
+        token: "molecule"
+        name: vault-agent
+      register: app_role_secret
+
+    - name: Create a file with app role secret id
+      copy:
+        content: "{{ app_role_secret.data.secret_id }}"
+        dest: "/tmp/secret.id"
+
+- name: Prepare
+  become: true
+  hosts: all
+  tasks:
+    - name: create vault-agent directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /opt/vault-agent/template.d
+
+    - name: create dummy files
+      file:
+        path: "{{ item }}"
+        state: touch
+      loop:
+        - /opt/vault-agent/template.d/dummy.tmpl

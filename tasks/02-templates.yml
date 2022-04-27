@@ -1,0 +1,32 @@
+- name: register present templates
+  tags: config
+  find:
+    paths: "{{ vault_agent_dirs.templates.path }}"
+    recurse: true
+  register: _templates_present
+
+- name: copy templates
+  tags: config
+  copy:
+    content: "{{ config.value }}"
+    dest: "{{ vault_agent_dirs.templates.path }}/{{ config.key }}.tmpl"
+    owner: "{{ vault_agent_user }}"
+    group: "{{ vault_agent_group }}"
+    mode: 0640
+  notify: restart vault-agent
+  loop: "{{ vault_agent_templates | dict2items }}"
+  loop_control:
+    loop_var: "config"
+    label: "{{ config.key }}"
+  register: _templates_copied
+
+- name: delete templates
+  tags: config
+  vars:
+    _present: "{{ _templates_present | json_query('files[*].path') | default([]) }}"
+    _copied: "{{ _templates_copied | json_query('results[*].dest') | default([]) }}"
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ _present | difference(_copied) }}"
+  notify: restart vault-agent
