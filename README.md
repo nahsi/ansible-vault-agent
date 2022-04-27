@@ -30,7 +30,7 @@ vault_agent_dirs:
   templates:
     path: "{{ vault_agent_dir }}/template.d"
   certs:
-    path: "{{ vault_agent_dir }}/certs
+    path: "{{ vault_agent_dir }}/certs"
   logs:
     path: "/var/log/vault-agent"
 ```
