@@ -47,12 +47,12 @@
       - vault_agent_config | length
     quiet: true
 
-- name: check "vault_agent_configs" variable
+- name: check "vault_agent_templates" variable
   tags: always
   assert:
     that:
-      - vault_agent_configs is defined
-      - vault_agent_configs is mapping
+      - vault_agent_templates is defined
+      - vault_agent_templates is mapping
     quiet: true
 
 - name: check "vault_agent_service" variable

@@ -6,10 +6,6 @@
   tags: config
   include_tasks: 01-install.yml
 
-- name: Manage configs
-  tags: config
-  include_tasks: 02-configs.yml
-
 - name: Manage templates
   tags: config
-  include_tasks: 03-templates.yml
+  include_tasks: 02-templates.yml

@@ -32,8 +32,8 @@
   file:
     path: "{{ dir.value.path }}"
     state: directory
-    owner: "{{ dir.group | default('vault') }}"
-    group: "{{ dir.group | default('vault') }}"
+    owner: "{{ dir.group | default(vault_agent_user) }}"
+    group: "{{ dir.group | default(vault_agent_group) }}"
     mode: "{{ dir.value.mode | default(755) }}"
   loop: "{{ vault_agent_dirs | dict2items }}"
   loop_control:
@@ -62,7 +62,7 @@
     owner: root
     group: root
     mode: 0555
-  notify: restart vault
+  notify: restart vault-agent
 
 - name: delete archive directory
   become: false

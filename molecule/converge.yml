@@ -12,21 +12,21 @@
         method:
           - type: "approle"
             config:
-              role_id_file_path: "/opt/role.id"
-              secret_id_file_path: "/opt/secret.id"
+              role_id_file_path: "/tmp/role.id"
+              secret_id_file_path: "/tmp/secret.id"
               remove_secret_id_file_after_reading: false
 
-    vault_agent_configs:
-      molecule:
-        template:
-          - source: "{{ vault_agent_dirs.templates.path }}/molecule.tmpl"
-            destination: "/opt/foo"
-            perms: 0640
+      template:
+        - source: "{{ vault_agent_dirs.templates.path }}/molecule.tmpl"
+          destination: "/opt/foo"
+          perms: 0640
+          left_delimiter: "[["
+          right_delimiter: "]]"
 
     vault_agent_templates:
       molecule: |
-        {{- with secret "secret/data/molecule/secret" -}}
-        {{ .Data.foo }}{{ end -}}
+        [[- with secret "secret/molecule/secret" -]]
+        [[ .Data.data.foo ]][[ end -]]
 
   roles:
     - ansible-vault-agent

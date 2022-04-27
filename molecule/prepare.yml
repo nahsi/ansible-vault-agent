@@ -32,7 +32,7 @@
       service:
         name: docker
         state: started
-        enabled: start
+        enabled: true
 
     - name: Add "vagrant" user to docker group
       user:
@@ -70,33 +70,53 @@
     - name: Write dummy secret
       hashivault_write:
         token: "molecule"
-        secret: "/secret/molecule/secret"
+        version: 2
+        secret: "molecule/secret"
         data:
           foo: bar
 
+    - name: Create policy
+      hashivault_policy:
+        token: "molecule"
+        name: vault-agent
+        rules: |
+          path "secret/data/molecule/secret"
+          {
+            capabilities = ["read"]
+          }
+    - name: Enable approle auth
+      hashivault_auth_method:
+        token: "molecule"
+        method_type: approle
+
     - name: Create app role for vault-agent
       hashivault_approle_role:
+        token: "molecule"
         name: vault-agent
+        token_policies:
+          - "vault-agent"
 
     - name: Get app role id
       hashivault_approle_role_id:
+        token: "molecule"
         name: vault-agent
-      result: app_role
+      register: app_role
 
     - name: Create a file with app role id
       copy:
         content: "{{ app_role.id }}"
-        destination: "/opt/role.id"
+        dest: "/tmp/role.id"
 
     - name: Get app role secret id
-      hashivault_approle_role_id:
+      hashivault_approle_role_secret:
+        token: "molecule"
         name: vault-agent
-      result: app_role_secret
+      register: app_role_secret
 
     - name: Create a file with app role secret id
       copy:
-        content: "{{ app_role_secret.id }}"
-        destination: "/opt/secret.id"
+        content: "{{ app_role_secret.data.secret_id }}"
+        dest: "/tmp/secret.id"
 
 - name: Prepare
   become: true
@@ -107,11 +127,11 @@
         path: "{{ item }}"
         state: directory
       loop:
-        - /opt/vault-agent/config.d
+        - /opt/vault-agent/template.d
 
     - name: create dummy files
       file:
         path: "{{ item }}"
         state: touch
       loop:
-        - /opt/vault-agent/config.d/dummy.json
+        - /opt/vault-agent/template.d/dummy.tmpl

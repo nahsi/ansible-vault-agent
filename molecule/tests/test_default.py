@@ -7,9 +7,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 
 @pytest.mark.parametrize("dirs", [
-    "/opt/vault/",
-    "/opt/vault/config.d/",
-    "/var/lib/vault/",
+    "/opt/vault-agent/",
 ])
 def test_directories_creation(host, dirs):
     d = host.file(dirs)
@@ -18,8 +16,7 @@ def test_directories_creation(host, dirs):
 
 
 @pytest.mark.parametrize("files", [
-    "/opt/vault/vault.json",
-    "/opt/vault/config.d/log_level.json"
+    "/opt/vault-agent/vault-agent.json",
 ])
 def test_file_creation(host, files):
     f = host.file(files)
@@ -27,32 +24,26 @@ def test_file_creation(host, files):
     assert f.is_file
 
 
+def test_file_creation(host):
+    f = host.file("/opt/foo")
+    assert f.exists
+    assert f.is_file
+    assert f.contains("bar")
+
+
 @pytest.mark.parametrize("files", [
-    "/opt/vault/config.d/dummy.json",
+    "/opt/vault-agent/template.d/dummy.tmpl",
 ])
 def test_file_sync(host, files):
     f = host.file(files)
     assert not f.exists
 
 
-def test_user(host):
-    assert host.group("vault").exists
-    assert host.user("vault").exists
-
-
 @pytest.mark.parametrize("service", [
-    "vault"
+    "vault-agent"
 ])
 def test_service_is_running(host, service):
     service = host.service(service)
 
     assert service.is_running
     assert service.is_enabled
-
-
-@pytest.mark.parametrize("port", [
-    "8200",
-])
-def test_socket(host, port):
-    s = host.socket("tcp://127.0.0.1:{}".format(port))
-    assert s.is_listening

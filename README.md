@@ -40,9 +40,9 @@ vault_agent_dirs:
 - main [configuration](https://www.vaultproject.io/docs/agent#configuration) file
 - example: please see [defaults/example.yml](https://github.com/nahsi/ansible-vault-agent/blob/master/defaults/example.yml)
 
-#### `vault_agent_configs`
+#### `vault_agent_templates`
 
-- map of configuration files to create in `config.d` directory
+- map of templates to create in `template.d` directory
 
 #### `vault_agent_user`
 
