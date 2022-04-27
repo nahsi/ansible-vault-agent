@@ -1,6 +1,6 @@
 # vault-agent
 
-Install, configure and maintain [vault-agent](https://www.vaultproject.io)
+Install, configure and maintain [vault-agent](https://www.vaultproject.io/docs/agent)
 
 ## Role Philosophy
 
