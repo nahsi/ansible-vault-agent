@@ -9,7 +9,7 @@ Please see
 
 ## Role Variables
 
-See [defaults/](https://github.com/nahsi/ansible-vault/blob/master/defaults/) for details and examples.
+See [defaults/](https://github.com/nahsi/ansible-vault-agent/blob/master/defaults/) for details and examples.
 
 #### `vault_agent_version`
 
