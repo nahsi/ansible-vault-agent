@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/nahsi/ansible-vault-agent/compare/v1.0.0...v1.0.1) (2022-06-12)
+
+
+### Miscellaneous
+
+* bump ansible from 5.3.0 to 5.8.0 ([#13](https://github.com/nahsi/ansible-vault-agent/issues/13)) ([7f3622f](https://github.com/nahsi/ansible-vault-agent/commit/7f3622f2e45ae616dd6b889a60f9435db7d6df04))
+
 ## 1.0.0 (2022-04-27)
 
 
