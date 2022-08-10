@@ -5,7 +5,8 @@ _arch_map:
   64-bit: amd64
 _arch: "{{ _arch_map[ansible_architecture] }}"
 
+_checksums: "{{ lookup('url', vault_agent_download_url + '/vault/' + vault_agent_version + '/vault_{{ vault_agent_version }}_SHA256SUMS', wantlist=True) | list }}"
+
 _archive: "vault_{{ vault_agent_version }}_linux_{{ _arch }}.zip"
 _archive_url: "{{ vault_agent_download_url }}/vault/{{ vault_agent_version }}/{{ _archive }}"
-_archive_checksum: "{{ vault_agent_download_url }}/vault/{{ vault_agent_version }}/vault_{{ vault_agent_version }}_SHA256SUMS"
 _archive_dir: "/tmp/{{ _archive | splitext | first }}"
