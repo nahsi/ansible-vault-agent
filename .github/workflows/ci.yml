@@ -45,7 +45,7 @@ jobs:
     needs: lint
 
     env:
-      OBJC_DISABLE_INITIALIZE_FORK_SAFETY: yes
+      OBJC_DISABLE_INITIALIZE_FORK_SAFETY: YES
 
     strategy:
       matrix:
