@@ -6,7 +6,11 @@
   "packageRules": [
     {
       "matchManagers": ["pip_requirements"],
-      "groupName": "pip requirements"
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major Python dependencies"
     },
     {
       "matchManagers": ["github-actions"],
