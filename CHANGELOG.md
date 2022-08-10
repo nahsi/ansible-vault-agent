@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/nahsi/ansible-vault-agent/compare/v1.0.0...v1.0.1) (2022-08-10)
+
+
+### Bug Fixes
+
+* Update archive check-summing ([#26](https://github.com/nahsi/ansible-vault-agent/issues/26)) ([3564c35](https://github.com/nahsi/ansible-vault-agent/commit/3564c3535b607e9e046db00aff4e485b5b5a4f8a))
+
 ## 1.0.0 (2022-04-27)
 
 
