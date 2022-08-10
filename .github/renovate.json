@@ -6,7 +6,7 @@
   "packageRules": [
     {
       "matchManagers": ["pip_requirements"],
-      "groupName": "Python"
+      "groupName": "pip requirements"
     },
     {
       "matchManagers": ["github-actions"],
