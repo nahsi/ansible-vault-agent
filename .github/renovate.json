@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["pip_requirements"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major Python dependencies"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "Github Actions"
+    }
+  ]
+}
