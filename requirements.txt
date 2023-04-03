@@ -4,6 +4,6 @@ ansible-modules-hashivault==4.7.0
 jmespath==1.0.1
 python-vagrant==1.0.0
 pytest==7.1.2
-pytest-testinfra==6.8.0
+pytest-testinfra==7.0.0
 molecule==4.0.1
 molecule-vagrant==1.0.0
