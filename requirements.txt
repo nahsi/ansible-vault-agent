@@ -1,9 +1,9 @@
 ansible==5.10.0
 hvac==0.11.2
-ansible-modules-hashivault==4.7.0
+ansible-modules-hashivault==4.7.1
 jmespath==1.0.1
 python-vagrant==1.0.0
-pytest==7.1.2
+pytest==7.4.4
 pytest-testinfra==6.8.0
-molecule==4.0.1
+molecule==4.0.4
 molecule-vagrant==1.0.0
