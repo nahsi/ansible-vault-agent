@@ -59,11 +59,6 @@ vault_agent_dirs:
 - url to get vault-agent archive from
 - default: `https://releases.hashicorp.com`
 
-#### `vault_agent_service`
-
-- openrc service file
-- default: see [defaults/main.yml](https://github.com/nahsi/ansible-vault-agent/blob/master/defaults/main.yml)
-
 #### `vault_agent_unitfile`
 
 - systemd unit file
@@ -72,6 +67,11 @@ vault_agent_dirs:
 #### `skip_handlers`
 
 - skip restart/reload - useful when building images with Packer
+- default: `false`
+
+#### `skip_enable`
+
+- skip enable with systemd - useful when building images with Packer
 - default: `false`
 
 ## Tags

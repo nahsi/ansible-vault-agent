@@ -83,23 +83,6 @@
     mode: 0640
   notify: restart vault-agent
 
-- name: create vault-agent service file
-  tags: config
-  copy:
-    content: "{{ vault_agent_service }}"
-    dest: "/etc/init.d/vault-agent"
-    owner: root
-    group: root
-    mode: 0755
-  notify: restart vault-agent
-  when: ansible_service_mgr == "openrc"
-
-- name: enable vault-agent
-  service:
-    name: vault-agent
-    enabled: true
-  when: ansible_service_mgr == "openrc"
-
 - name: create vault-agent unit file
   tags: config
   copy:
@@ -109,11 +92,10 @@
     group: root
     mode: 0755
   notify: restart vault-agent
-  when: ansible_service_mgr == "systemd"
 
 - name: enable vault-agent
   systemd:
     name: vault-agent
     enabled: true
     daemon_reload: true
-  when: ansible_service_mgr == "systemd"
+  when: not skip_enable

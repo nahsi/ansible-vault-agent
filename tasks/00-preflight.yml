@@ -55,16 +55,6 @@
       - vault_agent_templates is mapping
     quiet: true
 
-- name: check "vault_agent_service" variable
-  tags: always
-  assert:
-    that:
-      - vault_agent_service is defined
-      - vault_agent_service is string
-      - vault_agent_service | length
-    quiet: true
-  when: ansible_service_mgr == "openrc"
-
 - name: check "vault_agent_unit" variable
   tags: always
   assert:

@@ -13,38 +13,14 @@ vault_agent_dirs:
     path: "{{ vault_agent_dir }}"
   templates:
     path: "{{ vault_agent_dir }}/template.d"
+  configs:
+    path: "{{ vault_agent_dir }}/config.d"
   certs:
     path: "{{ vault_agent_dir }}/certs"
+  secrets:
+    path: "{{ vault_agent_dir }}/secrets"
   logs:
     path: "/var/log/vault-agent"
-
-vault_agent_service: |
-  #!/sbin/openrc-run
-
-  description="HashiCorp vault-agent"
-
-  group="${RC_SVCNAME}"
-  user="${RC_SVCNAME}"
-
-  supervisor="supervise-daemon"
-  pidfile="/run/${RC_SVCNAME}.pid"
-  command="/usr/bin/${RC_SVCNAME}"
-  command_args="agent -config={{ vault_agent_dir }}/vault-agent.json"
-  command_background="true"
-  extra_started_commands="reload"
-
-  output_log="{{ vault_agent_dirs.logs.path }}/vault-agent.log"
-  error_log="{{ vault_agent_dirs.logs.path }}/vault-agent.log"
-
-  depend() {
-    need net
-  }
-
-  reload() {
-    ebegin "Reloading vault-agent"
-    ${supervisor} ${RC_SVCNAME} --signal HUP --pidfile "${PIDFILE}"
-    eend $?
-  }
 
 vault_agent_unit: |
   [Unit]
@@ -52,12 +28,11 @@ vault_agent_unit: |
   Documentation=https://www.vaultproject.io/docs/agent
   Requires=network-online.target
   After=network-online.target
-  ConditionFileNotEmpty={{ vault_agent_dir }}/vault-agent.json
 
   [Service]
   User=root
   Group=root
-  ExecStart=/usr/bin/vault-agent agent -config={{ vault_agent_dir }}/vault-agent.json
+  ExecStart=/usr/bin/vault-agent agent -config={{ vault_agent_dir }}/vault-agent.json -config={{ vault_agent_dirs.configs }}
   ExecReload=/bin/kill --signal HUP $MAINPID
   KillMode=process
   KillSignal=SIGINT
